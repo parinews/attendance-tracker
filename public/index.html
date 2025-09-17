@@ -145,17 +145,6 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
-        .report-section {
-            margin-top: 20px;
-        }
-
-        .report-controls {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
         .report-table {
             width: 100%;
             border-collapse: collapse;
@@ -333,16 +322,6 @@
                         <input type="radio" id="email-method" name="notification-method" value="email" checked>
                         <label for="email-method">📧 Email Notifications (Free)</label>
                     </div>
-                    
-                    <div class="notification-method">
-                        <input type="radio" id="sms-method" name="notification-method" value="sms">
-                        <label for="sms-method">📱 SMS Notifications (Low Cost)</label>
-                    </div>
-                    
-                    <div class="notification-method">
-                        <input type="radio" id="whatsapp-method" name="notification-method" value="whatsapp">
-                        <label for="whatsapp-method">💬 WhatsApp (Setup Required)</label>
-                    </div>
                 </div>
 
                 <!-- Email Settings -->
@@ -363,61 +342,11 @@
                     </div>
                 </div>
 
-                <!-- SMS Settings -->
-                <div id="sms-settings" class="notification-form" style="display: none;">
-                    <h3>📱 SMS Notification Setup</h3>
-                    <div class="form-group">
-                        <label for="phone-number">Your Phone Number:</label>
-                        <input type="tel" id="phone-number" placeholder="+1234567890">
-                    </div>
-                    <div class="form-group">
-                        <label for="sms-service">SMS Service:</label>
-                        <select id="sms-service">
-                            <option value="twilio">Twilio (Free $15 trial)</option>
-                            <option value="textbelt">TextBelt (Free limited)</option>
-                        </select>
-                    </div>
-                    <button onclick="setupSMSNotifications()" class="submit-btn">Setup SMS Notifications</button>
-                    
-                    <div class="notification-status">
-                        <h4>📋 SMS Setup Instructions:</h4>
-                        <p><strong>For Twilio (Recommended):</strong></p>
-                        <ol>
-                            <li>Sign up at <a href="https://twilio.com" target="_blank">twilio.com</a> (free $15 trial)</li>
-                            <li>Get your Account SID and Auth Token</li>
-                            <li>Add your phone number to verified numbers</li>
-                            <li>We'll help you integrate it with your app</li>
-                        </ol>
-                    </div>
-                </div>
-
-                <!-- WhatsApp Settings -->
-                <div id="whatsapp-settings" class="notification-form" style="display: none;">
-                    <h3>💬 WhatsApp Notification Setup</h3>
-                    <div class="notification-status">
-                        <h4>📋 WhatsApp Setup Options:</h4>
-                        <p><strong>Option 1: WhatsApp Business API (Advanced)</strong></p>
-                        <ul>
-                            <li>Requires business verification</li>
-                            <li>Monthly fees apply</li>
-                            <li>Best for larger operations</li>
-                        </ul>
-                        
-                        <p><strong>Option 2: Simple Browser Automation (Easier)</strong></p>
-                        <ul>
-                            <li>Uses WhatsApp Web</li>
-                            <li>Free but requires manual setup</li>
-                            <li>Good for personal use</li>
-                        </ul>
-                    </div>
-                    <button onclick="setupWhatsAppNotifications()" class="submit-btn">Get WhatsApp Setup Instructions</button>
-                </div>
-
                 <!-- Current Settings Display -->
                 <div class="card" style="margin-top: 30px; background: #f8f9fa;">
                     <h3>📊 Current Notification Status</h3>
                     <div id="current-settings">
-                        <p>No notifications configured yet. Choose a method above to get started!</p>
+                        <p>No notifications configured yet. Enter your email above to get started!</p>
                     </div>
                     
                     <div style="margin-top: 20px;">
@@ -433,7 +362,7 @@
         <div id="reports-tab" class="tab-content">
             <div class="card">
                 <h2>Monthly Attendance Report</h2>
-                <div class="report-controls">
+                <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 20px;">
                     <label for="report-month">Select Month:</label>
                     <input type="month" id="report-month">
                     <button onclick="generateReport()" class="submit-btn">Generate Report</button>
@@ -441,21 +370,6 @@
                 
                 <div id="report-content">
                     <!-- Report will be generated here -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Response Modal -->
-        <div id="quick-response-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000;">
-            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%;">
-                <h3>📝 Quick Attendance Entry</h3>
-                <p>Mark today's attendance quickly:</p>
-                <div id="quick-employee-grid" style="margin: 20px 0;">
-                    <!-- Quick response options will be generated here -->
-                </div>
-                <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                    <button onclick="closeQuickResponse()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px;">Cancel</button>
-                    <button onclick="submitQuickResponse()" class="submit-btn">Save Attendance</button>
                 </div>
             </div>
         </div>
@@ -479,21 +393,23 @@
 
         // Initialize the app
         function initApp() {
+            console.log('Initializing app...');
             generateEmployeeCards();
             setTodayDate();
             setCurrentMonth();
             loadNotificationSettings();
             handleQuickResponse();
-            
-            // Setup notification method change handlers
-            document.querySelectorAll('input[name="notification-method"]').forEach(radio => {
-                radio.addEventListener('change', showNotificationMethod);
-            });
         }
 
         // Generate employee cards
         function generateEmployeeCards() {
+            console.log('Generating employee cards...');
             const grid = document.getElementById('employee-grid');
+            if (!grid) {
+                console.error('Employee grid element not found!');
+                return;
+            }
+            
             grid.innerHTML = '';
 
             employees.forEach(employee => {
@@ -514,19 +430,71 @@
                 `;
                 grid.appendChild(card);
             });
+            console.log('Employee cards generated successfully');
         }
 
-        // Show notification method settings
-        function showNotificationMethod() {
-            const selectedMethod = document.querySelector('input[name="notification-method"]:checked').value;
+        // Set status for an employee
+        function setStatus(employeeId, status, button) {
+            const card = button.parentElement.parentElement;
+            const buttons = card.querySelectorAll('.status-btn');
             
-            // Hide all settings
-            document.getElementById('email-settings').style.display = 'none';
-            document.getElementById('sms-settings').style.display = 'none';
-            document.getElementById('whatsapp-settings').style.display = 'none';
+            // Remove active class from all buttons in this card
+            buttons.forEach(btn => btn.classList.remove('active'));
             
-            // Show selected method settings
-            document.getElementById(selectedMethod + '-settings').style.display = 'block';
+            // Add active class to clicked button
+            button.classList.add('active');
+            
+            // Store the selection
+            card.dataset.status = status;
+            card.dataset.employeeId = employeeId;
+        }
+
+        // Set today's date
+        function setTodayDate() {
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('attendance-date');
+            if (dateInput) {
+                dateInput.value = today;
+            }
+        }
+
+        // Set current month for reports
+        function setCurrentMonth() {
+            const today = new Date();
+            const currentMonth = today.toISOString().slice(0, 7);
+            const monthInput = document.getElementById('report-month');
+            if (monthInput) {
+                monthInput.value = currentMonth;
+            }
+        }
+
+        // Tab switching
+        function showTab(tabName) {
+            console.log('Switching to tab:', tabName);
+            
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            const selectedTab = document.getElementById(tabName + '-tab');
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+            
+            // Find and activate the clicked button
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach((btn, index) => {
+                const tabNames = ['attendance', 'notifications', 'reports'];
+                if (tabNames[index] === tabName) {
+                    btn.classList.add('active');
+                }
+            });
         }
 
         // Setup email notifications
@@ -538,7 +506,6 @@
             }
 
             try {
-                // Call backend API to save notification settings
                 const response = await fetch('/api/notifications/setup', {
                     method: 'POST',
                     headers: {
@@ -553,7 +520,6 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    // Update local settings
                     notificationSettings = {
                         method: 'email',
                         email: email,
@@ -563,12 +529,10 @@
                     
                     localStorage.setItem('notificationSettings', JSON.stringify(notificationSettings));
                     
-                    // Generate unique response URL
                     const responseId = generateResponseId();
                     const baseUrl = window.location.href.split('?')[0];
                     const responseUrl = `${baseUrl}?response=${responseId}`;
                     
-                    // Show success message
                     document.getElementById('email-status').style.display = 'block';
                     document.getElementById('response-url').textContent = responseUrl;
                     document.getElementById('test-notification-btn').style.display = 'block';
@@ -582,74 +546,6 @@
             } catch (error) {
                 console.error('Setup error:', error);
                 alert('❌ Failed to setup notifications. Please check your connection and try again.');
-            }
-        }
-
-        // Setup SMS notifications
-        function setupSMSNotifications() {
-            const phone = document.getElementById('phone-number').value;
-            const service = document.getElementById('sms-service').value;
-            
-            if (!phone) {
-                alert('Please enter your phone number!');
-                return;
-            }
-
-            notificationSettings = {
-                method: 'sms',
-                email: null,
-                phone: phone,
-                service: service,
-                enabled: true
-            };
-            
-            localStorage.setItem('notificationSettings', JSON.stringify(notificationSettings));
-            updateCurrentSettings();
-            
-            // Show instructions based on service
-            if (service === 'twilio') {
-                alert('📱 SMS Setup Instructions:\n\n1. Go to twilio.com and sign up\n2. Get $15 free trial credit\n3. Note your Account SID and Auth Token\n4. Add your phone number to verified numbers\n5. Contact me for the backend integration code!\n\nEstimated cost: $0.0075 per SMS (about $0.23/month for daily notifications)');
-            } else {
-                alert('📱 TextBelt Setup:\n\nTextBelt offers free SMS but with limitations.\nFor reliable daily notifications, Twilio is recommended.\n\nWould you like the backend code for either service?');
-            }
-        }
-
-        // Setup WhatsApp notifications
-        function setupWhatsAppNotifications() {
-            alert('💬 WhatsApp Setup Options:\n\n**Recommended for beginners:**\nUse a simple automation tool like "WA Web Plus" or similar browser extensions.\n\n**For developers:**\nI can provide code using WhatsApp Web automation.\n\n**Business users:**\nWhatsApp Business API requires verification and monthly fees.\n\nWhich option interests you most?');
-        }
-
-        // Generate unique response ID
-        function generateResponseId() {
-            return 'resp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        }
-
-        // Load notification settings
-        function loadNotificationSettings() {
-            const saved = localStorage.getItem('notificationSettings');
-            if (saved) {
-                notificationSettings = JSON.parse(saved);
-                updateCurrentSettings();
-            }
-        }
-
-        // Update current settings display
-        function updateCurrentSettings() {
-            const currentDiv = document.getElementById('current-settings');
-            if (notificationSettings.enabled) {
-                let html = '<p><strong>✅ Notifications are enabled!</strong></p>';
-                html += `<p><strong>Method:</strong> ${notificationSettings.method.toUpperCase()}</p>`;
-                if (notificationSettings.email) {
-                    html += `<p><strong>Email:</strong> ${notificationSettings.email}</p>`;
-                }
-                if (notificationSettings.phone) {
-                    html += `<p><strong>Phone:</strong> ${notificationSettings.phone}</p>`;
-                }
-                html += '<p><em>Daily notifications will be sent at 8:00 PM</em></p>';
-                currentDiv.innerHTML = html;
-                document.getElementById('test-notification-btn').style.display = 'block';
-            } else {
-                currentDiv.innerHTML = '<p>No notifications configured yet. Choose a method above to get started!</p>';
             }
         }
 
@@ -679,155 +575,6 @@
                 console.error('Test error:', error);
                 alert('❌ Failed to send test notification. Please check your connection and EmailJS setup.');
             }
-        }
-
-        // Handle quick response from URL
-        function handleQuickResponse() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const responseId = urlParams.get('response');
-            
-            if (responseId) {
-                // Show quick response modal
-                showQuickResponseModal();
-            }
-        }
-
-        // Show quick response modal
-        function showQuickResponseModal() {
-            const modal = document.getElementById('quick-response-modal');
-            const grid = document.getElementById('quick-employee-grid');
-            
-            // Generate quick response buttons
-            let html = '';
-            employees.forEach(emp => {
-                html += `
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin: 10px 0;">
-                        <span>${emp.name}</span>
-                        <div>
-                            <button onclick="setQuickStatus(${emp.id}, 'present', this)" class="status-btn present" style="margin: 0 5px;">Present</button>
-                            <button onclick="setQuickStatus(${emp.id}, 'absent', this)" class="status-btn absent" style="margin: 0 5px;">Absent</button>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            grid.innerHTML = html;
-            modal.style.display = 'block';
-        }
-
-        // Set quick status
-        function setQuickStatus(employeeId, status, button) {
-            const container = button.parentElement;
-            const buttons = container.querySelectorAll('.status-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            
-            button.parentElement.parentElement.dataset.status = status;
-            button.parentElement.parentElement.dataset.employeeId = employeeId;
-        }
-
-        // Submit quick response
-        async function submitQuickResponse() {
-            const employeeElements = document.querySelectorAll('#quick-employee-grid > div[data-status]');
-            
-            if (employeeElements.length !== employees.length) {
-                alert('Please mark attendance for all employees!');
-                return;
-            }
-
-            const today = new Date().toISOString().split('T')[0];
-            const records = [];
-
-            employeeElements.forEach(element => {
-                const employeeId = parseInt(element.dataset.employeeId);
-                const status = element.dataset.status;
-                const employee = employees.find(emp => emp.id === employeeId);
-                
-                records.push({
-                    employeeId: employeeId,
-                    employeeName: employee.name,
-                    status: status
-                });
-            });
-
-            try {
-                // Send to backend API
-                const response = await fetch('/api/attendance/quick', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        date: today,
-                        records: records
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    // Also save locally for the frontend reports
-                    const attendanceData = { date: today, records: records };
-                    let allAttendance = JSON.parse(localStorage.getItem('attendanceData') || '[]');
-                    allAttendance = allAttendance.filter(record => record.date !== today);
-                    allAttendance.push(attendanceData);
-                    localStorage.setItem('attendanceData', JSON.stringify(allAttendance));
-
-                    alert('✅ Attendance saved successfully!');
-                    closeQuickResponse();
-                } else {
-                    alert('❌ Failed to save attendance: ' + result.error);
-                }
-            } catch (error) {
-                console.error('Save error:', error);
-                // Fallback to local storage
-                const attendanceData = { date: today, records: records };
-                let allAttendance = JSON.parse(localStorage.getItem('attendanceData') || '[]');
-                allAttendance = allAttendance.filter(record => record.date !== today);
-                allAttendance.push(attendanceData);
-                localStorage.setItem('attendanceData', JSON.stringify(allAttendance));
-
-                alert('✅ Attendance saved locally!\n(Backend connection failed, but data is preserved)');
-                closeQuickResponse();
-            }
-        }
-
-        // Close quick response modal
-        function closeQuickResponse() {
-            document.getElementById('quick-response-modal').style.display = 'none';
-            // Remove response parameter from URL
-            if (window.location.search.includes('response=')) {
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        }
-
-        // Set status for an employee
-        function setStatus(employeeId, status, button) {
-            const card = button.parentElement;
-            const buttons = card.querySelectorAll('.status-btn');
-            
-            // Remove active class from all buttons in this card
-            buttons.forEach(btn => btn.classList.remove('active'));
-            
-            // Add active class to clicked button
-            button.classList.add('active');
-            
-            // Store the selection
-            button.parentElement.parentElement.dataset.status = status;
-            button.parentElement.parentElement.dataset.employeeId = employeeId;
-        }
-
-        // Set today's date
-        function setTodayDate() {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('attendance-date').value = today;
-        }
-
-        // Set current month for reports
-        function setCurrentMonth() {
-            const today = new Date();
-            const currentMonth = today.toISOString().slice(0, 7);
-            document.getElementById('report-month').value = currentMonth;
         }
 
         // Save attendance data
@@ -912,7 +659,6 @@
         function generateReportTable(data, monthYear) {
             const reportContent = document.getElementById('report-content');
             
-            // Calculate summary stats
             const summary = {};
             employees.forEach(emp => {
                 summary[emp.id] = { name: emp.name, present: 0, absent: 0, total: 0 };
@@ -931,7 +677,6 @@
                 });
             });
 
-            // Generate summary table
             let html = `
                 <h3>Attendance Summary for ${monthYear}</h3>
                 <table class="report-table">
@@ -960,59 +705,61 @@
                 `;
             });
 
-            html += `
-                    </tbody>
-                </table>
-                
-                <h3 style="margin-top: 30px;">Daily Records</h3>
-                <table class="report-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>John Smith</th>
-                            <th>Sarah Johnson</th>
-                            <th>Mike Davis</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-
-            // Sort data by date
-            data.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-            data.forEach(dayRecord => {
-                html += `<tr><td>${dayRecord.date}</td>`;
-                
-                employees.forEach(emp => {
-                    const record = dayRecord.records.find(r => r.employeeId === emp.id);
-                    const status = record ? record.status : 'N/A';
-                    const cellClass = status === 'present' ? 'present-cell' : 
-                                     status === 'absent' ? 'absent-cell' : '';
-                    html += `<td class="${cellClass}">${status}</td>`;
-                });
-                
-                html += '</tr>';
-            });
-
-            html += '</tbody></table>';
+            html += `</tbody></table>`;
             reportContent.innerHTML = html;
         }
 
-        // Tab switching
-        function showTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
+        // Helper functions
+        function generateResponseId() {
+            return 'resp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
 
-            // Show selected tab
-            document.getElementById(tabName + '-tab').classList.add('active');
-            event.target.classList.add('active');
+        function loadNotificationSettings() {
+            const saved = localStorage.getItem('notificationSettings');
+            if (saved) {
+                notificationSettings = JSON.parse(saved);
+                updateCurrentSettings();
+            }
+        }
+
+        function updateCurrentSettings() {
+            const currentDiv = document.getElementById('current-settings');
+            if (notificationSettings.enabled) {
+                let html = '<p><strong>✅ Notifications are enabled!</strong></p>';
+                html += `<p><strong>Method:</strong> ${notificationSettings.method.toUpperCase()}</p>`;
+                if (notificationSettings.email) {
+                    html += `<p><strong>Email:</strong> ${notificationSettings.email}</p>`;
+                }
+                html += '<p><em>Daily notifications will be sent at 8:00 PM</em></p>';
+                currentDiv.innerHTML = html;
+                document.getElementById('test-notification-btn').style.display = 'block';
+            } else {
+                currentDiv.innerHTML = '<p>No notifications configured yet. Enter your email above to get started!</p>';
+            }
+        }
+
+        function handleQuickResponse() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const responseId = urlParams.get('response');
+            
+            if (responseId) {
+                alert('Quick response feature detected! This would open the attendance modal.');
+                // Quick response modal would be implemented here
+            }
         }
 
         // Initialize the app when page loads
-        window.onload = initApp;
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing app...');
+            initApp();
+        });
+
+        // Fallback initialization
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
+    </script>
+</body>
+</html>
